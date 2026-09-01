@@ -6,3 +6,4 @@ Change #4: I am building good Git habits.
 Change #5: I am getting more comfortable with the Git workflow.
 Change #6: Each commit records a step in my progress.
 Change #7: I can now save, commit, and push my work.
+Change #8: GitHub keeps my course work organized.
