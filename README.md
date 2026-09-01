@@ -8,3 +8,4 @@ Change #6: Each commit records a step in my progress.
 Change #7: I can now save, commit, and push my work.
 Change #8: GitHub keeps my course work organized.
 Change #9: I am ready to use Git for future assignments.
+Change #10: I completed the Git and GitHub workflow.
