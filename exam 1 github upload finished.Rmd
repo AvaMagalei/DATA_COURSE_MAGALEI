@@ -1,0 +1,191 @@
+#holy mother of god this is the fourth time I have tried to put this together
+#--------------------------------------------------------------------------
+#--------------------------------------------------------------------------
+#------------------EXAM 1-------START HERE-------SEND PRAYERS--------------
+
+#1: read and verify data
+
+#load the packages
+library(ggplot2)
+library(dplyr)
+
+#read the dataset 
+coviddata <- read.csv("cleaned_covid_data.csv")
+
+#double check that john
+head(coviddata)
+
+#nice
+
+#--------------------------------------------------------------------------
+
+#2: get the A states
+#this one was hard
+
+A_states <- coviddata[startsWith(as.character(coviddata$Province_State), "A"), ]
+
+#don't be true or false (Fixed: saving converted Date back to column)
+A_states$Last_Update <- as.Date(A_states$Last_Update)
+
+#double check
+unique(A_states$Province_State)
+
+#triple check
+str(A_states)
+
+#nice
+
+#--------------------------------------------------------------------------
+
+#3. make plots for the A states
+#also I made it purple
+
+ggplot(data = A_states, aes(x = Last_Update, y = Deaths)) +
+  geom_point(aes(color = Deaths), alpha = 0.7, size = 1.8) +
+  geom_smooth(method = "loess", se = FALSE, color = "thistle3", linewidth = 1.2) +
+  scale_color_gradient(low = "thistle", high = "orchid") + # Thistle to Orchid
+  facet_wrap(~ Province_State, scales = "free") +
+  theme_minimal() +
+  labs(title = "COVID-19 Deaths over Time",
+       x = "Date", 
+       y = "Deaths",
+       color = "Deaths")
+
+
+
+#--------------------------------------------------------------------------
+#4 find peak fatality ratio per state
+
+#I had a lot of trouble with this one and had to do a bunch of troubleshooting
+
+#group data by state
+grouped_df <- group_by(coviddata, Province_State)
+
+#summarize to find max fatality ratio per state 
+state_max_fatality_rate <- summarize(grouped_df, Maximum_Fatality_Ratio = max(Case_Fatality_Ratio, na.rm = TRUE))
+
+#sort highest to lowest 
+state_max_fatality_rate <- arrange(state_max_fatality_rate, desc(Maximum_Fatality_Ratio))
+
+#double check
+head(state_max_fatality_rate)
+
+#nice
+
+#--------------------------------------------------------------------------
+#5: make a plot for max fatality ratio
+
+ggplot(data = state_max_fatality_rate, 
+       aes(x = reorder(Province_State, -Maximum_Fatality_Ratio), 
+           y = Maximum_Fatality_Ratio, 
+           fill = Maximum_Fatality_Ratio)) +
+  geom_col() +
+  scale_fill_gradient(low = "slateblue", high = "thistle") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  labs(title = "Peak COVID-19 Case Fatality Ratio by State",
+       x = "Province/State", 
+       y = "Maximum Fatality Ratio",
+       fill = "Max Ratio")
+
+#the end
+#thank you and goodnight
+
+
+
+
+output: 
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: false
+pagetitle: Exam_1
+---
+
+# Skills Test 1 (the real thing)
+
+____
+
+# Setup
+
+Do a fresh "git pull" to get the skills test files.
+The files you just got from your "git pull" are:
+ 
+ + README.md (this text file with instructions)
+ + README.html (fancy version of this file)
+ + cleaned_covid_data.csv
+ + prepare_data.R (the script I used to turn all the raw data files into cleaned_covid_data.csv - only for the curious)
+ + data/ (directory containing all the raw data files - only for the curious)
+ 
+
+
+# Data description
+
+**cleaned_covid_data.csv is the main data file you will use for this skills test.**
+
+The columns in the cleaned_covid_data.csv file are as follows:
+
+| Column name              | Description                                                                   |
+| ------------------------ | ------------------------------------------------------------------------------|
+| "Province_State"         | State (or DC)                                                                 |
+| "Last_Update"            | Date of observation                                               |
+| "Confirmed"              | Cumulative number of confirmed COVID-19 cases as of the given date            |
+| "Deaths"                 | The date the DNA was originally extracted in the format YYYY-MM-DD            |
+| "Recovered"              | Total number of recovered cases as of the given date                          |
+| "Active"                 | Total number of active confirmed COVID-19 cases as of the given date          |
+| "Case_Fatality_Ratio"    | Percent of cases that resulted in death due to COVID-19                       |
+
+A glimpse of the data structure:
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+df <- read_csv("cleaned_covid_data.csv")
+skimr::skim(df)
+```
+
+# YOUR TASKS:
+
+**I.**
+**Read the cleaned_covid_data.csv file into an R data frame. (20 pts)**
+
+**II.**
+**Subset the data set to just show states that begin with "A" and save this as an object called A_states. (20 pts)**
+
+ + Use the *tidyverse* suite of packages
+ + Selecting rows where the state starts with "A" is tricky (you can use the grepl() function or just a vector of those states if you prefer)
+ 
+**III.**
+**Create a plot _of that subset_ showing Deaths over time, with a separate facet for each state. (20 pts)**
+
+ + Create a scatterplot
+ + Add loess curves WITHOUT standard error shading
+ + Keep scales "free" in each facet
+
+**IV.** (Back to the full dataset)
+**Find the "peak" of Case_Fatality_Ratio for each state and save this as a new data frame object called state_max_fatality_rate. (20 pts)**
+
+I'm looking for a new data frame with 2 columns:
+
+ + "Province_State"
+ + "Maximum_Fatality_Ratio"
+ + Arrange the new data frame in descending order by Maximum_Fatality_Ratio
+ 
+This might take a few steps. Be careful about how you deal with missing values!
+
+
+**V.**
+**Use that new data frame from task IV to create another plot. (20 pts)**
+
+ + X-axis is Province_State
+ + Y-axis is Maximum_Fatality_Ratio
+ + bar plot
+ + x-axis arranged in descending order, just like the data frame (make it a factor to accomplish this)
+ + X-axis labels turned to 90 deg to be readable
+ 
+Even with this partial data set (not current), you should be able to see that (within these dates), different states had very different fatality ratios.
+
+**VI.** (BONUS 10 pts)
+**Using the FULL data set, plot cumulative deaths for the entire US over time**
+
+ + You'll need to read ahead a bit and use the dplyr package functions group_by() and summarize() to accomplish this.
+
+
